@@ -36,6 +36,19 @@ class TestEmotionDetector(unittest.TestCase):
         for emotion, score in scores.items():
             self.assertEqual(result[emotion], score)
 
+    def test_invalid_text(self):
+        """HTTP 400 produces an empty emotion result."""
+        response = Mock()
+        response.status_code = 400
+        with patch(
+            "EmotionDetection.emotion_detection.requests.post",
+            return_value=response,
+        ):
+            result = emotion_detector("")
+        self.assertIsNone(result["dominant_emotion"])
+        for name in ("anger", "disgust", "fear", "joy", "sadness"):
+            self.assertIsNone(result[name])
+
     def test_joy(self):
         self.check_emotion("I am glad this happened", "joy")
 
